@@ -14,7 +14,9 @@ headers = {"Content-Type": "application/json"}
 # 默认非流式输出 True or False
 stream_flag = False
 
-input_text = "有没有土豪套餐"
+# input_text = "有没有土豪套餐"
+# input_text = "你叫什么名字"
+input_text = "你最爱谁"
 # input_text = "这个套餐是多少钱"
 # input_text = "办个200G的套餐"
 # input_text = "有没有流量大的套餐"
@@ -53,9 +55,9 @@ if stream_flag:
                         except json.JSONDecodeError as e:
                             logger.info(f"JSON解析错误: {e}")
                     else:
-                        print(f"无效JSON格式: {json_str}")
+                        logger.info(f"无效JSON格式: {json_str}")
     except Exception as e:
-        print(f"Error occurred: {e}")
+        logger.info(f"Error occurred: {e}")
 
 # 接收非流式输出处理
 else:
