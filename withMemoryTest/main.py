@@ -4,6 +4,7 @@ import os
 import re
 import json
 import asyncio
+import ssl
 import uuid
 import time
 import logging
@@ -27,13 +28,18 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 # 用于处理和存储对话历史
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from langchain.schema import ChatMessage
+from dotenv import load_dotenv
 
-
-
+load_dotenv()
+ssl._create_default_https_context = ssl._create_unverified_context
 # 设置langsmith环境变量
-# os.environ["LANGCHAIN_TRACING_V2"] = "true"
-# os.environ["LANGCHAIN_API_KEY"] = "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"
-
+os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2")
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+MYSQL_HOST = os.getenv("MYSQL_HOST")
+MYSQL_PORT = int(os.getenv("MYSQL_PORT", 3306))
+MYSQL_USER = os.getenv("MYSQL_USER")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+MYSQL_DATABASE = os.getenv("MYSQL_DATABASE")
 # 设置日志模版
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -46,13 +52,13 @@ PROMPT_TEMPLATE_TXT_USER = "prompt_template_user.txt"
 # 模型设置相关  根据自己的实际情况进行调整
 API_TYPE = "oneapi"  # openai:调用gpt模型；oneapi:调用oneapi方案支持的模型(这里调用通义千问)
 # openai模型相关配置 根据自己的实际情况进行调整
-OPENAI_API_BASE = "https://api.wlai.vip/v1"
-OPENAI_CHAT_API_KEY = "sk-EhxvNWXkjzZJADfHA1Ac24Dd0f0b42B2B97f3725D3BcA378"
-OPENAI_CHAT_MODEL = "gpt-4o-mini"
+# OPENAI_API_BASE = ""
+# OPENAI_CHAT_API_KEY = ""
+# OPENAI_CHAT_MODEL = ""
 # oneapi相关配置(通义千问为例) 根据自己的实际情况进行调整
-ONEAPI_API_BASE = "http://139.224.72.218:3000/v1"
-ONEAPI_CHAT_API_KEY = "sk-eNbcweTEQV6L5Iw4F0B033219a1149C9Ab77501e690aD218"
-ONEAPI_CHAT_MODEL = "qwen-max"
+ONEAPI_API_BASE = os.getenv("OPENAI_BASE_URL")
+ONEAPI_CHAT_API_KEY = os.getenv("OPENAI_API_KEY")
+ONEAPI_CHAT_MODEL = os.getenv("AI_MODEL")
 
 # API服务设置相关  根据自己的实际情况进行调整
 PORT = 8012  # 服务访问的端口
@@ -94,8 +100,9 @@ class ChatCompletionResponse(BaseModel):
 # 根据用户ID和会话ID获取SQL数据库中的聊天历史
 # 该函数返回一个SQLChatMessageHistory对象，用于存储特定用户和会话的历史记录
 def get_session_history(user_id: str, conversation_id: str):
-    # 初始化SQLChatMessageHistory对象
-    history = SQLChatMessageHistory(f"{user_id}--{conversation_id}", "sqlite:///memory.db")
+    # 初始化 SQLChatMessageHistory 对象 (使用 MySQL 数据库)
+    # MySQL 连接格式：mysql+pymysql://用户名：密码@主机：端口/数据库名
+    history = SQLChatMessageHistory(f"{user_id}--{conversation_id}", f"mysql+pymysql://root:{MYSQL_PASSWORD}@{MYSQL_HOST}:3306/{MYSQL_DATABASE}")
     # 获取所有历史消息
     all_messages = history.messages
     # 只保留最近10条历史消息的content部分

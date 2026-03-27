@@ -4,6 +4,7 @@ import os
 import re
 import json
 import asyncio
+import ssl
 import uuid
 import time
 import logging
@@ -18,12 +19,13 @@ from langchain_core.prompts import PromptTemplate
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 import uvicorn
+from dotenv import load_dotenv
 
-
-
+load_dotenv()
+ssl._create_default_https_context = ssl._create_unverified_context
 # 设置langsmith环境变量
-# os.environ["LANGCHAIN_TRACING_V2"] = "true"
-# os.environ["LANGCHAIN_API_KEY"] = "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"
+os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2")
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
 
 # 设置日志模版
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -37,13 +39,13 @@ PROMPT_TEMPLATE_TXT_USER = "prompt_template_user.txt"
 # 模型设置相关  根据自己的实际情况进行调整
 API_TYPE = "oneapi"  # openai:调用gpt模型；oneapi:调用oneapi方案支持的模型(这里调用通义千问)
 # openai模型相关配置 根据自己的实际情况进行调整
-OPENAI_API_BASE = "https://api.wlai.vip/v1"
-OPENAI_CHAT_API_KEY = "sk-EhxvNWXkjzZJADfHA1Ac24Dd0f0b42B2B97f3725D3BcA378"
-OPENAI_CHAT_MODEL = "gpt-4o-mini"
+# OPENAI_API_BASE = ""
+# OPENAI_CHAT_API_KEY = ""
+# OPENAI_CHAT_MODEL = ""
 # oneapi相关配置(通义千问为例) 根据自己的实际情况进行调整
-ONEAPI_API_BASE = "http://139.224.72.218:3000/v1"
-ONEAPI_CHAT_API_KEY = "sk-eNbcweTEQV6L5Iw4F0B033219a1149C9Ab77501e690aD218"
-ONEAPI_CHAT_MODEL = "qwen-max"
+ONEAPI_API_BASE = os.getenv("OPENAI_BASE_URL")
+ONEAPI_CHAT_API_KEY = os.getenv("OPENAI_API_KEY")
+ONEAPI_CHAT_MODEL = os.getenv("AI_MODEL")
 
 # API服务设置相关  根据自己的实际情况进行调整
 PORT = 8012  # 服务访问的端口
