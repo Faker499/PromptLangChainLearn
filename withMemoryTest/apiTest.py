@@ -14,13 +14,14 @@ headers = {"Content-Type": "application/json"}
 # 默认非流式输出 True or False
 stream_flag = False
 
-input_text = "有没有土豪套餐"
+# input_text = "有没有土豪套餐"
 # input_text = "这个套餐是多少钱"
 # input_text = "办个200G的套餐"
 # input_text = "这个套餐是多少钱"
 # input_text = "就是刚刚问的那个套餐"
 # input_text = "LangChain是什么"
-
+# input_text = "你是谁?"
+input_text = "那你最爱谁?"
 # 第一次请求
 data = {
     "messages": [{"role": "user", "content": input_text}],

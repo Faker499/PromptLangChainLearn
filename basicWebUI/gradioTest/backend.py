@@ -9,7 +9,7 @@ import uvicorn
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-PORT = 8012  # 服务访问的端口
+PORT = 8000  # 服务访问的端口
 
 # 创建 FastAPI 实例
 app = FastAPI()
